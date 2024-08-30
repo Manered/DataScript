@@ -1,0 +1,30 @@
+menu {
+  title = 'Test Menu'
+  rows = 3
+}
+recordtest {
+  deaths = 0
+  kills = 0
+  username = 'Manere_'
+}
+items {
+  button2 {
+    slot = 1
+    type = 'netherite ingot'
+    name = 'Netherite Ingot'
+  }
+  button1 {
+    type = 'diamond'
+    name = 'Diamond'
+    slot = 0
+    lore = [
+      "Is this a diamond?",
+      "No it's not."
+    ]
+  }
+}
+playerdata {
+  deaths = 0
+  username = 'Manere_'
+  kills = 0
+}
