@@ -24,10 +24,17 @@ button {
 
 Node Types:
 
-| Name | Description |
-| ---  | --- |
-| Scalar Node | Contains a value. This is considered a tuple, map, etc. A format would be `key = <value>` |
+| Name         | Description                                                                                                                                                  |
+| ---          | ---                                                                                                                                                          |
+| Scalar Node  | Contains a value. This is considered a tuple, map, etc. A format would be `key = <value>`                                                                    |
 | Section Node | Has a Set of children, which are all implementations of a node. An empty one would be `key = {}`. A section can store multiple sections and multiple scalars |
+
+Data Types:
+| Name | Example |
+| ---- | ------- |
+| TODO | TODO    |
+
+(Every single Java primitive type.)
 
 Java Usage:
 ```java
