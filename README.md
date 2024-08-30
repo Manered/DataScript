@@ -1,5 +1,5 @@
 # DataScript
-> A human readable configuration format/language with a Java implementation. Meant to be easy to understand, write and use.
+> A human-readable configuration format/language with a Java implementation. Meant to be easy to understand, write and use.
 
 ---
 
