@@ -126,6 +126,24 @@ public class DataScriptConfiguration implements Configuration {
 
         final String value = parts[1].trim();
 
+        if (value.equalsIgnoreCase("true")) {
+            return new ScalarNode<>(true) {
+                @NotNull
+                @Override
+                public String name() {
+                    return key;
+                }
+            };
+        } else if (value.equalsIgnoreCase("false")) {
+            return new ScalarNode<>(false) {
+                @NotNull
+                @Override
+                public String name() {
+                    return key;
+                }
+            };
+        }
+
         if (value.startsWith("'") && value.endsWith("'") || value.startsWith("\"") && value.endsWith("\"")) {
             return new ScalarNode<>(value.substring(1, value.length() - 1)) {
                 @NotNull
@@ -261,63 +279,69 @@ public class DataScriptConfiguration implements Configuration {
         if (node instanceof ScalarNode<?> scalar) {
             final Object value = scalar.value();
 
-            if (value instanceof String string) {
-                writer.write(indent + node.name() + " = '" + string + "'");
-                writer.newLine();
-            } else if (value instanceof Byte _byte) {
-                writer.write(indent + node.name() + " = " + _byte + "B");
-                writer.newLine();
-            } else if (value instanceof Integer integer) {
-                writer.write(indent + node.name() + " = " + integer);
-                writer.newLine();
-            } else if (value instanceof Long _long) {
-                writer.write(indent + node.name() + " = " + _long + "L");
-                writer.newLine();
-            } else if (value instanceof Double _double) {
-                writer.write(indent + node.name() + " = " + _double + "D");
-                writer.newLine();
-            } else if (value instanceof Character character) {
-                writer.write(indent + node.name() + " = '" + character + "'C");
-                writer.newLine();
-            } else if (value instanceof Short _short) {
-                writer.write(indent + node.name() + " = " + _short + "S");
-                writer.newLine();
-            } else if (value instanceof List<?> list) {
-                writer.write(indent + node.name() + " = [");
-
-                for (int i = 0; i < list.size(); i++) {
-                    final Object element = list.get(i);
-
+            switch (value) {
+                case Boolean bool -> writer.write(indent + node.name() + " = " + bool);
+                case String string -> {
+                    writer.write(indent + node.name() + " = '" + string + "'");
                     writer.newLine();
-
-                    if (element instanceof String string) {
-                        writer.write(indent + "  '" + string + "'");
-                    } else if (element instanceof Integer integer) {
-                        writer.write(indent + "  " + integer);
-                    } else if (element instanceof Long _long) {
-                        writer.write(indent + "  " + _long + "L");
-                    } else if (element instanceof Double _double) {
-                        writer.write(indent + "  " + _double + "D");
-                    } else if (element instanceof Character character) {
-                        writer.write(indent + "  " + character + "'C");
-                    } else if (element instanceof Short _short) {
-                        writer.write(indent + "  " + _short + "S");
-                    } else {
-                        writer.write(indent + "  " + value);
-                    }
-
-                    if (i == list.size() - 1) {
-                        writer.append(",");
-                        writer.newLine();
-                        break;
-                    }
                 }
+                case Byte _byte -> {
+                    writer.write(indent + node.name() + " = " + _byte + "B");
+                    writer.newLine();
+                }
+                case Integer integer -> {
+                    writer.write(indent + node.name() + " = " + integer);
+                    writer.newLine();
+                }
+                case Long _long -> {
+                    writer.write(indent + node.name() + " = " + _long + "L");
+                    writer.newLine();
+                }
+                case Double _double -> {
+                    writer.write(indent + node.name() + " = " + _double + "D");
+                    writer.newLine();
+                }
+                case Character character -> {
+                    writer.write(indent + node.name() + " = '" + character + "'C");
+                    writer.newLine();
+                }
+                case Short _short -> {
+                    writer.write(indent + node.name() + " = " + _short + "S");
+                    writer.newLine();
+                }
+                case List<?> list -> {
+                    writer.write(indent + node.name() + " = [");
 
-                writer.write(indent + "]");
-                writer.newLine();
-            } else {
-                writer.write(indent + node.name() + " = " + value);
-                writer.newLine();
+                    for (int i = 0; i < list.size(); i++) {
+                        final Object element = list.get(i);
+
+                        writer.newLine();
+
+                        switch (element) {
+                            case Boolean bool -> writer.write(indent + "  " + bool);
+                            case String string -> writer.write(indent + "  '" + string + "'");
+                            case Integer integer -> writer.write(indent + "  " + integer);
+                            case Long _long -> writer.write(indent + "  " + _long + "L");
+                            case Double _double -> writer.write(indent + "  " + _double + "D");
+                            case Character character -> writer.write(indent + "  " + character + "'C");
+                            case Short _short -> writer.write(indent + "  " + _short + "S");
+                            case null, default -> writer.write(indent + "  " + value);
+                        }
+
+                        if (i == list.size() - 1) {
+                            writer.append(",");
+                            writer.newLine();
+                            break;
+                        }
+                    }
+
+                    writer.write(indent + "]");
+                    writer.newLine();
+                }
+                default -> {
+                    writer.write(indent + node.name() + " = " + value);
+                    writer.newLine();
+                }
             }
         }
 
