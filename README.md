@@ -10,7 +10,7 @@ button {
   position {
     x = 0
     y = 0
-  ]
+  }
   size {
     length = 500
     height = 150
