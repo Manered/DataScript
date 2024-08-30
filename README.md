@@ -40,7 +40,7 @@ Data Types:
 | Short | `256S` |
 | Byte | `13B` |
 | List | `["0", "1", "2", "3"]` |
-| Boolean | `True`, `False` |
+| Boolean | `true`, `false` (case insensitive) |
 
 (Every single Java primitive type.)
 
