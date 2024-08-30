@@ -30,9 +30,17 @@ Node Types:
 | Section Node | Has a Set of children, which are all implementations of a node. An empty one would be `key = {}`. A section can store multiple sections and multiple scalars |
 
 Data Types:
-| Name | Example |
+| Name | Example(s) |
 | ---- | ------- |
-| TODO | TODO    |
+| String | `'String'`, `"String"` |
+| Integer | `69`, `2147483647` |
+| Long | `69L` |
+| Double | `10.5D` |
+| Character | `'A'C` |
+| Short | `256S` |
+| Byte | `13B` |
+| List | `["0", "1", "2", "3"]` |
+| Boolean | `True`, `False` |
 
 (Every single Java primitive type.)
 
