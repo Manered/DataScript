@@ -4,10 +4,7 @@ import dev.manere.datascript.api.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -41,8 +38,7 @@ public class DataScriptConfiguration implements Configuration {
         return file;
     }
 
-    @Override
-    public void load() {
+    public void loadFromDisk() {
         if (!file.exists()) return;
 
         try (final BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
@@ -59,6 +55,47 @@ public class DataScriptConfiguration implements Configuration {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void loadFromString(@NotNull String configString) {
+        try (final BufferedReader reader = new BufferedReader(new StringReader(configString))) {
+            clear();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                final ConfigNode node = parseNode(line, reader, 0);
+                if (node != null) root.section().nodes().add(node);
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveToDisk() {
+        if (!file.exists()) try {
+            assert file.createNewFile();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (final BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+            for (final ConfigNode node : root.nodes()) writeNode(writer, node, 0);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public @NotNull String saveToString() {
+        StringWriter stringWriter = new StringWriter();
+        try (final BufferedWriter writer = new BufferedWriter(stringWriter)) {
+            for (final ConfigNode node : root.nodes()) writeNode(writer, node, 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return stringWriter.toString();
     }
 
     @Nullable
@@ -252,21 +289,6 @@ public class DataScriptConfiguration implements Configuration {
                     return key;
                 }
             };
-        }
-    }
-
-    @Override
-    public void save() {
-        if (!file.exists()) try {
-            assert file.createNewFile();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (final BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
-            for (final ConfigNode node : root.nodes()) writeNode(writer, node, 0);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

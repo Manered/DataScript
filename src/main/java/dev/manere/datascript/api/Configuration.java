@@ -26,23 +26,12 @@ public interface Configuration {
         }
     }
 
-    void load();
+    void loadFromDisk();
 
-    void save();
+    void saveToDisk();
 
-    @NotNull
-    default CompletableFuture<Configuration> loadAsync() {
-        return CompletableFuture.supplyAsync(() -> {
-            load();
-            return this;
-        }).exceptionally(throwable -> this);
-    }
+    void loadFromString(final @NotNull String contents);
 
     @NotNull
-    default CompletableFuture<Configuration> saveAsync() {
-        return CompletableFuture.supplyAsync(() -> {
-            save();
-            return this;
-        }).exceptionally(throwable -> this);
-    }
+    String saveToString();
 }

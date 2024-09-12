@@ -13,12 +13,24 @@ public class ConfigValue<T> {
     }
 
     @NotNull
+    public static <T> ConfigValue<T> value(final @NotNull T value) {
+        return new ConfigValue<>(value);
+    }
+
+    @NotNull
     public <N> ConfigValue<N> map(final @NotNull Function<T, N> function) {
         return new ConfigValue<>(function.apply(value));
     }
 
-    public void accept(final @NotNull Consumer<T> consumer) {
+    @NotNull
+    public ConfigValue<T> accept(final @NotNull Consumer<T> consumer) {
         consumer.accept(value);
+        return this;
+    }
+
+    @NotNull
+    public <N> N mapAndGet(final @NotNull Function<T, N> function) {
+        return map(function).get();
     }
 
     @NotNull
@@ -26,6 +38,7 @@ public class ConfigValue<T> {
         return new ConfigValue<>((N) get());
     }
 
+    @NotNull
     public T get() {
         return value;
     }

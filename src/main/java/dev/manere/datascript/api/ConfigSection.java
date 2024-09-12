@@ -249,6 +249,13 @@ public record ConfigSection(@NotNull SectionNode section) {
         consumer.accept(sectionOrNew(key));
     }
 
+    @NotNull
+    public String normalizeNaming(@NotNull String input) {
+        return input.toLowerCase()
+            .replaceAll("-", " ")
+            .replaceAll("_", " ");
+    }
+
     @Override
     @NotNull
     public SectionNode section() {
