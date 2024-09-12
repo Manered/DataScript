@@ -1,5 +1,5 @@
 # DataScript
-> A human readable configuration format/language with a Java implementation. Meant to be easy to understand, write and use.
+> A human-readable configuration format/language with a Java implementation. Meant to be easy to understand, write and use.
 
 ---
 
@@ -40,7 +40,7 @@ Data Types:
 | Short | `256S` |
 | Byte | `13B` |
 | List | `["0", "1", "2", "3"]` |
-| Boolean | `True`, `False` |
+| Boolean | `true`, `false` (case insensitive) |
 
 (Every single Java primitive type.)
 
