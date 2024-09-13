@@ -33,7 +33,7 @@ Data Types:
 
 | Name      | Example(s)                                     |
 |-----------|------------------------------------------------|
-| String    | `'String'`, `"String"`                         |
+| String    | `'String 1'`, `"String 2"`                     |
 | Integer   | `69`, `2147483647`                             |
 | Long      | `69L`                                          |
 | Double    | `10.5D`                                        |
