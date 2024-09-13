@@ -7,10 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DataScriptConfiguration implements Configuration {
@@ -181,6 +178,16 @@ public class DataScriptConfiguration implements Configuration {
             };
         }
 
+        if (value.startsWith("uuid('") && value.endsWith(")")) {
+            return new ScalarNode<>(value.replaceAll("uuid\\('", "").replaceAll("\\)", "")) {
+                @NotNull
+                @Override
+                public String name() {
+                    return key;
+                }
+            };
+        }
+
         if (value.startsWith("'") && value.endsWith("'") || value.startsWith("\"") && value.endsWith("\"")) {
             return new ScalarNode<>(value.substring(1, value.length() - 1)) {
                 @NotNull
@@ -257,7 +264,10 @@ public class DataScriptConfiguration implements Configuration {
             final String[] elements = content.split(",");
             for (String element : elements) {
                 element = element.trim();
-                if (element.matches("\\d+")) {
+
+                if (element.startsWith("uuid('") && element.endsWith(")")) {
+                    list.add(UUID.fromString(element.replaceAll("uuid\\('", "").replaceAll("\\)", "")));
+                } else if (element.matches("\\d+")) {
                     list.add(Integer.parseInt(element));
                 } else if (element.matches("\\d+L")) {
                     list.add(Long.parseLong(element.substring(0, element.length() - 1)));
@@ -270,7 +280,7 @@ public class DataScriptConfiguration implements Configuration {
                 } else if (element.startsWith("'") && element.endsWith("'") || element.startsWith("\"") && element.endsWith("\"")) {
                     list.add(element.substring(1, element.length() - 1));
                 } else {
-                    list.add(element);  // default to String
+                    list.add(element);
                 }
             }
 
@@ -358,6 +368,10 @@ public class DataScriptConfiguration implements Configuration {
                     }
 
                     writer.write(indent + "]");
+                    writer.newLine();
+                }
+                case UUID uuid -> {
+                    writer.write(indent + node.name() + " = uuid('" + uuid + "')");
                     writer.newLine();
                 }
                 default -> {
