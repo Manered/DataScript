@@ -1,6 +1,7 @@
 package dev.manere.datascript.datascript;
 
 import dev.manere.datascript.api.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,14 +11,28 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Implementation of the {@link Configuration} interface that provides
+ * methods to load, save, and manage configuration data.
+ */
 public class DataScriptConfiguration implements Configuration {
     private final File file;
     private final ConfigSection root = new ConfigSection(new RootSection());
 
+    /**
+     * Constructs a new DataScriptConfiguration with the provided file.
+     *
+     * @param file The file where configuration data is stored.
+     */
     public DataScriptConfiguration(final @NotNull File file) {
         this.file = file;
     }
 
+    /**
+     * Returns a new {@link Builder} instance to create a configuration.
+     *
+     * @return A new Builder.
+     */
     @NotNull
     public static Builder builder() {
         return new Builder();
@@ -35,6 +50,7 @@ public class DataScriptConfiguration implements Configuration {
         return file;
     }
 
+    @Override
     public void loadFromDisk() {
         if (!file.exists()) return;
 
@@ -54,6 +70,7 @@ public class DataScriptConfiguration implements Configuration {
         }
     }
 
+    @Override
     public void loadFromString(@NotNull String configString) {
         try (final BufferedReader reader = new BufferedReader(new StringReader(configString))) {
             clear();
@@ -71,6 +88,7 @@ public class DataScriptConfiguration implements Configuration {
         }
     }
 
+    @Override
     public void saveToDisk() {
         if (!file.exists()) try {
             assert file.createNewFile();
@@ -85,6 +103,7 @@ public class DataScriptConfiguration implements Configuration {
         }
     }
 
+    @Override
     public @NotNull String saveToString() {
         StringWriter stringWriter = new StringWriter();
         try (final BufferedWriter writer = new BufferedWriter(stringWriter)) {
@@ -96,6 +115,7 @@ public class DataScriptConfiguration implements Configuration {
     }
 
     @Nullable
+    @ApiStatus.Internal
     private ConfigNode parseNode(@NotNull String line, final @NotNull BufferedReader reader, final int depth) throws IOException {
         final String indent = "  ".repeat(depth);
         if (!line.startsWith(indent)) return null;
@@ -178,8 +198,8 @@ public class DataScriptConfiguration implements Configuration {
             };
         }
 
-        if (value.startsWith("uuid('") && value.endsWith(")")) {
-            return new ScalarNode<>(value.replaceAll("uuid\\('", "").replaceAll("\\)", "")) {
+        if (value.startsWith("uuid('") && value.endsWith("')")) {
+            return new ScalarNode<>(UUID.fromString(value.replaceAll("uuid\\('", "").replaceAll("'\\)", ""))) {
                 @NotNull
                 @Override
                 public String name() {
@@ -262,11 +282,12 @@ public class DataScriptConfiguration implements Configuration {
 
             // Split the content by commas and parse individual elements
             final String[] elements = content.split(",");
+
             for (String element : elements) {
                 element = element.trim();
 
-                if (element.startsWith("uuid('") && element.endsWith(")")) {
-                    list.add(UUID.fromString(element.replaceAll("uuid\\('", "").replaceAll("\\)", "")));
+                if (element.startsWith("uuid('") && element.endsWith("')")) {
+                    list.add(UUID.fromString(element.replaceAll("uuid\\('", "").replaceAll("'\\)", "")));
                 } else if (element.matches("\\d+")) {
                     list.add(Integer.parseInt(element));
                 } else if (element.matches("\\d+L")) {
@@ -302,6 +323,7 @@ public class DataScriptConfiguration implements Configuration {
         }
     }
 
+    @ApiStatus.Internal
     private void writeNode(final @NotNull BufferedWriter writer, final @NotNull ConfigNode node, final int depth) throws IOException {
         if (depth < 0) throw new IllegalArgumentException();
 
@@ -312,7 +334,10 @@ public class DataScriptConfiguration implements Configuration {
             final Object value = scalar.value();
 
             switch (value) {
-                case Boolean bool -> writer.write(indent + node.name() + " = " + bool);
+                case Boolean bool -> {
+                    writer.write(indent + node.name() + " = " + bool);
+                    writer.newLine();
+                }
                 case String string -> {
                     writer.write(indent + node.name() + " = '" + string + "'");
                     writer.newLine();
@@ -357,14 +382,18 @@ public class DataScriptConfiguration implements Configuration {
                             case Double _double -> writer.write(indent + "  " + _double + "D");
                             case Character character -> writer.write(indent + "  " + character + "'C");
                             case Short _short -> writer.write(indent + "  " + _short + "S");
+                            case UUID uuid -> writer.write(indent + " uuid('" + uuid + "')");
                             case null, default -> writer.write(indent + "  " + value);
                         }
 
-                        if (i == list.size() - 1) {
+                        if (i != list.size() - 1) {
                             writer.append(",");
                             writer.newLine();
-                            break;
+                            continue;
                         }
+
+                        writer.newLine();
+                        break;
                     }
 
                     writer.write(indent + "]");
@@ -397,15 +426,30 @@ public class DataScriptConfiguration implements Configuration {
         }
     }
 
+    /**
+     * Builder class for {@link DataScriptConfiguration}.
+     */
     public static class Builder {
         private File file;
 
+        /**
+         * Sets the file for the configuration.
+         *
+         * @param file The configuration file.
+         * @return This builder instance.
+         */
         @NotNull
         public Builder file(final @NotNull File file) {
             this.file = file;
             return this;
         }
 
+        /**
+         * Builds and returns a new {@link DataScriptConfiguration}.
+         *
+         * @return A new configuration instance.
+         * @throws NullPointerException if the file is not set.
+         */
         @NotNull
         public DataScriptConfiguration build() {
             if (file == null) throw new NullPointerException();
